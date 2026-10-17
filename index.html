@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Protecting Personal Information in AI Systems</title>
+  <style>
+    :root{--bg:#0b1020;--panel:#131a2c;--text:#eef3ff;--muted:#9fb0d0;--accent:#7cc4ff;--accent2:#8ef0c7;--danger:#ff9b9b;--border:#263453}
+    *{box-sizing:border-box} body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:linear-gradient(180deg,#0b1020,#11182a);color:var(--text);line-height:1.6}
+    .wrap{max-width:1120px;margin:auto;padding:24px}.hero{padding:56px 0 28px}.eyebrow{color:var(--accent2);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.78rem}.hero h1{font-size:clamp(2.2rem,6vw,4.8rem);line-height:1.03;margin:.35rem 0 1rem}.hero p{max-width:780px;color:var(--muted);font-size:1.1rem}
+    .nav{position:sticky;top:0;z-index:10;background:rgba(11,16,32,.88);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}.navin{max-width:1120px;margin:auto;padding:12px 24px;display:flex;gap:10px;overflow:auto}.nav button{background:none;border:1px solid var(--border);color:var(--text);padding:9px 14px;border-radius:999px;white-space:nowrap;cursor:pointer}.nav button:hover{border-color:var(--accent);color:var(--accent)}
+    section{padding:34px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}.card{background:rgba(19,26,44,.9);border:1px solid var(--border);border-radius:18px;padding:20px}.card h3{margin-top:0}.muted{color:var(--muted)}
+    .risk-card{cursor:pointer;transition:.2s}.risk-card:hover{transform:translateY(-3px);border-color:var(--accent)}.risk-detail{display:none;margin-top:12px;color:var(--muted)}.risk-card.open .risk-detail{display:block}
+    textarea{width:100%;min-height:130px;background:#0d1424;color:var(--text);border:1px solid var(--border);border-radius:14px;padding:14px;font:inherit}.btn{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#07101e;border:0;border-radius:12px;padding:11px 16px;font-weight:800;cursor:pointer;margin-top:10px}.output{margin-top:14px;background:#0d1424;border:1px solid var(--border);border-radius:14px;padding:16px;white-space:pre-wrap}.score{font-size:2rem;font-weight:900}.low{color:var(--accent2)}.medium{color:#ffd98a}.high{color:var(--danger)}
+    .checklist label{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px dashed var(--border)}.progress{height:12px;background:#0d1424;border-radius:999px;overflow:hidden;margin-top:12px}.bar{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:.25s}.scenario{margin-top:16px}.choice{display:block;width:100%;text-align:left;margin:8px 0;background:#10182a;border:1px solid var(--border);color:var(--text);padding:12px;border-radius:12px;cursor:pointer}.choice:hover{border-color:var(--accent)}.feedback{margin-top:10px;font-weight:700}
+    footer{border-top:1px solid var(--border);padding:28px 0 50px;color:var(--muted)} code{color:#c8e7ff}
+  </style>
+</head>
+<body>
+  <nav class="nav"><div class="navin">
+    <button onclick="go('risks')">Privacy Risks</button><button onclick="go('redactor')">PII Redactor</button><button onclick="go('score')">Risk Score</button><button onclick="go('checklist')">Checklist</button><button onclick="go('scenario')">Scenario Quiz</button>
+  </div></nav>
+
+  <main class="wrap">
+    <header class="hero">
+      <div class="eyebrow">AI Safety & Security Lab</div>
+      <h1>Protecting Personal Information in AI Systems</h1>
+      <p>An interactive educational page about reducing privacy risk when AI systems process personal information. Explore common threats, test a simple redaction demo, and review practical privacy-by-design controls.</p>
+    </header>
+
+    <section id="risks">
+      <h2>Common privacy risks</h2>
+      <p class="muted">Tap a card to expand it.</p>
+      <div class="grid">
+        <div class="card risk-card" onclick="this.classList.toggle('open')"><h3>Unnecessary collection</h3><p>More data means more exposure.</p><div class="risk-detail">Use data minimization: collect only what is required for the task and avoid copying entire records into prompts.</div></div>
+        <div class="card risk-card" onclick="this.classList.toggle('open')"><h3>Prompt leakage</h3><p>Sensitive details may be passed into prompts or logs.</p><div class="risk-detail">Redact or tokenize identifiers before sending data to a model where full identity is not needed.</div></div>
+        <div class="card risk-card" onclick="this.classList.toggle('open')"><h3>Over-broad retrieval</h3><p>RAG systems may return records a user should not see.</p><div class="risk-detail">Enforce record-level authorization before retrieval. The model should not decide access rights by itself.</div></div>
+        <div class="card risk-card" onclick="this.classList.toggle('open')"><h3>Long retention</h3><p>Old prompts and logs can become a privacy liability.</p><div class="risk-detail">Set retention limits and securely delete data that is no longer required.</div></div>
+      </div>
+    </section>
+
+    <section id="redactor">
+      <div class="card">
+        <h2>Interactive PII redaction demo</h2>
+        <p class="muted">This browser-only demo looks for obvious email addresses, phone numbers, and long number strings. It is intentionally simple and not production-ready.</p>
+        <textarea id="piiInput">Contact Maria at maria@example.com or +63 912 345 6789. Her account number is 827391004512.</textarea>
+        <button class="btn" onclick="redactPII()">Redact personal information</button>
+        <div id="redacted" class="output">Redacted output will appear here.</div>
+      </div>
+    </section>
+
+    <section id="score">
+      <div class="card">
+        <h2>Privacy risk score</h2>
+        <p class="muted">Enter a hypothetical AI workflow. The score is educational only.</p>
+        <textarea id="riskInput" placeholder="Example: We send customer names, addresses, and account numbers to an AI model and keep all prompts forever."></textarea>
+        <button class="btn" onclick="scoreRisk()">Assess risk</button>
+        <div id="riskOutput" class="output">No assessment yet.</div>
+      </div>
+    </section>
+
+    <section id="checklist">
+      <div class="card checklist">
+        <h2>Privacy-by-design checklist</h2>
+        <label><input type="checkbox" onchange="updateProgress()"> Collect only the minimum data needed</label>
+        <label><input type="checkbox" onchange="updateProgress()"> Redact or tokenize identifiers where possible</label>
+        <label><input type="checkbox" onchange="updateProgress()"> Enforce authorization outside the model</label>
+        <label><input type="checkbox" onchange="updateProgress()"> Restrict access to logs and traces</label>
+        <label><input type="checkbox" onchange="updateProgress()"> Use retention limits and deletion processes</label>
+        <label><input type="checkbox" onchange="updateProgress()"> Use synthetic data for testing when possible</label>
+        <div class="progress"><div id="bar" class="bar"></div></div>
+        <p id="progressText" class="muted">0 of 6 safeguards checked</p>
+      </div>
+    </section>
+
+    <section id="scenario">
+      <div class="card scenario">
+        <h2>Scenario quiz</h2>
+        <p><strong>Scenario:</strong> An AI support tool needs to summarize a customer complaint. The database contains the customer’s full address, date of birth, account number, and complaint text. What is the safest approach?</p>
+        <button class="choice" onclick="answer(false)">Send the full customer record so the model has maximum context</button>
+        <button class="choice" onclick="answer(true)">Send only the complaint and the minimum identifiers necessary for the task</button>
+        <button class="choice" onclick="answer(false)">Put all customer data in the system prompt so it is harder for users to see</button>
+        <div id="feedback" class="feedback"></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="grid">
+        <div class="card"><h3>Key principle</h3><p>Privacy controls should be part of AI security architecture, not treated only as a compliance task.</p></div>
+        <div class="card"><h3>Defense in depth</h3><p>Use multiple controls: minimization, authorization, redaction, least privilege, output checks, logging controls, and human review.</p></div>
+        <div class="card"><h3>Responsible testing</h3><p>Use synthetic data and authorized environments. Avoid exposing real personal information during experiments.</p></div>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="wrap">Built for the <strong>AI Safety & Security Lab</strong> by Ry Golpe. Educational demonstration only; not legal advice or a production privacy control.</div></footer>
+
+  <script>
+    function go(id){document.getElementById(id).scrollIntoView({behavior:'smooth'});}
+    function redactPII(){
+      let t=document.getElementById('piiInput').value;
+      t=t.replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi,'[EMAIL_REDACTED]');
+      t=t.replace(/(?:\+?\d[\d\s().-]{7,}\d)/g,'[PHONE_REDACTED]');
+      t=t.replace(/\b\d{8,}\b/g,'[NUMBER_REDACTED]');
+      document.getElementById('redacted').textContent=t;
+    }
+    function scoreRisk(){
+      const t=document.getElementById('riskInput').value.toLowerCase(); let s=0; let reasons=[];
+      const rules=[['name',10,'personal identifiers'],['address',20,'location data'],['date of birth',20,'identity data'],['account number',25,'financial/account data'],['health',25,'sensitive health data'],['forever',25,'unlimited retention'],['all prompts',20,'broad logging'],['no consent',20,'lack of transparency'],['third party',15,'external sharing']];
+      rules.forEach(([k,w,r])=>{if(t.includes(k)){s+=w;reasons.push(r)}}); s=Math.min(100,s);
+      let cls='low',label='LOW'; if(s>=60){cls='high';label='HIGH'} else if(s>=30){cls='medium';label='MEDIUM'}
+      document.getElementById('riskOutput').innerHTML=`<div class="score ${cls}">${s}/100 — ${label} RISK</div><div>${reasons.length?'Signals: '+reasons.join(', '):'No obvious signals detected by this simple demo.'}</div>`;
+    }
+    function updateProgress(){const boxes=[...document.querySelectorAll('#checklist input')];const n=boxes.filter(b=>b.checked).length;document.getElementById('bar').style.width=(n/boxes.length*100)+'%';document.getElementById('progressText').textContent=`${n} of ${boxes.length} safeguards checked`;}
+    function answer(ok){const el=document.getElementById('feedback');el.textContent=ok?'Correct. Apply data minimization and expose only what the task requires.':'Not the safest choice. Minimize data and enforce access controls before the model sees sensitive records.';el.style.color=ok?'var(--accent2)':'var(--danger)';}
+  </script>
+</body>
+</html>
